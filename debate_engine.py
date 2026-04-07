@@ -10,6 +10,7 @@ class HistoryEntry(TypedDict):
     round: int
     round_type: str
     stance: str
+    tool_calls: list[dict]
 
 
 class DebateState(TypedDict):
@@ -86,6 +87,7 @@ class DebateOrchestrator:
             "round": round_num,
             "round_type": round_type,
             "stance": agent.current_stance,
+            "tool_calls": list(agent.last_tool_calls),
         }
         self.state["history"].append(entry)
         self.state["agent_stances"][agent.name] = agent.current_stance

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from openai import OpenAI
-from tools import TOOLS, dispatch_tool
+from tools import get_tools, dispatch_tool
 
 PERSONAS: dict[str, str] = {
     "Analytical": (
@@ -38,6 +38,7 @@ class DebateAgent:
     client: OpenAI
     model: str = "gpt-4o-mini"
     use_tools: bool = True
+    use_rag: bool = False
 
     current_stance: str = field(init=False)
     position_history: list[str] = field(default_factory=list, init=False)
@@ -87,7 +88,7 @@ class DebateAgent:
     def _call_with_tools(self, messages: list[dict]) -> str:
         kwargs: dict = {"model": self.model, "messages": messages}
         if self.use_tools:
-            kwargs["tools"] = TOOLS
+            kwargs["tools"] = get_tools(use_rag=self.use_rag)
             kwargs["tool_choice"] = "auto"
 
         response = self.client.chat.completions.create(**kwargs)
