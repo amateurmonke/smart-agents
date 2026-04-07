@@ -1,6 +1,13 @@
 from __future__ import annotations
 import json
+from typing import TypedDict
 from openai import OpenAI
+
+
+class Verdict(TypedDict):
+    summary: str        # 3–5 sentence narrative
+    stance: str         # FOR | AGAINST | NEUTRAL
+    confidence: int     # 0–100
 
 JUDGE_SYSTEM = """\
 You are an impartial debate judge. Evaluate the arguments presented in the round.
@@ -21,9 +28,16 @@ Return valid JSON only. Do not include markdown fences.\
 
 VERDICT_SYSTEM = """\
 You are an impartial debate judge delivering a final verdict.
-Write 3 to 5 sentences. Identify who made the most logically sound and evidence-based case.
-Acknowledge any meaningful concessions or position changes. Be direct and fair.
-Do not use em dashes.\
+
+Return a JSON object with exactly three keys:
+- "summary": 3 to 5 sentences identifying who made the most logically sound and evidence-based \
+case, acknowledging any meaningful concessions or position changes. Be direct and fair.
+- "stance": the optimal stance a well-informed person should hold on the topic after this debate. \
+Must be exactly one of: FOR, AGAINST, NEUTRAL.
+- "confidence": an integer from 0 to 100 reflecting how decisively the evidence and arguments \
+support that stance (100 = overwhelming, 50 = evenly contested, 0 = entirely inconclusive).
+
+Do not use em dashes. Return valid JSON only. Do not include markdown fences.\
 """
 
 
@@ -93,7 +107,7 @@ class Adjudicator:
 
         return totals
 
-    def final_verdict(self, topic: str, history: list[dict], agent_names: list[str]) -> str:
+    def final_verdict(self, topic: str, history: list[dict], agent_names: list[str]) -> Verdict:
         transcript = "\n\n".join(
             f"[{h['round_type'].upper()} R{h['round']}] {h['agent']}: {h['content']}"
             for h in history
@@ -123,8 +137,24 @@ class Adjudicator:
                     ),
                 },
             ],
+            response_format={"type": "json_object"},
         )
-        return response.choices[0].message.content or ""
+
+        raw = response.choices[0].message.content or "{}"
+        try:
+            data = json.loads(raw)
+            stance = data.get("stance", "NEUTRAL").strip().upper()
+            if stance not in ("FOR", "AGAINST", "NEUTRAL"):
+                stance = "NEUTRAL"
+            confidence = int(data.get("confidence", 50))
+            confidence = max(0, min(100, confidence))
+            return Verdict(
+                summary=data.get("summary", ""),
+                stance=stance,
+                confidence=confidence,
+            )
+        except (json.JSONDecodeError, ValueError):
+            return Verdict(summary=raw, stance="NEUTRAL", confidence=50)
 
     @property
     def round_scores(self) -> list[dict]:

@@ -76,6 +76,30 @@ def render_round_scores(round_scores: dict, round_label: str) -> None:
                     st.caption(data["note"])
 
 
+def render_verdict(verdict) -> None:
+    """Render a Verdict TypedDict (or plain string fallback)."""
+    if isinstance(verdict, str):
+        st.markdown(verdict)
+        return
+
+    st.markdown(verdict["summary"])
+
+    stance = verdict.get("stance", "NEUTRAL")
+    confidence = verdict.get("confidence", 50)
+    color = STANCE_COLORS.get(stance, "#555555")
+
+    col_stance, col_conf = st.columns([1, 2])
+    with col_stance:
+        st.markdown(
+            f"**Recommended stance:** "
+            f'<span style="background:{color};color:white;padding:3px 12px;'
+            f'border-radius:4px;font-weight:600;">{stance}</span>',
+            unsafe_allow_html=True,
+        )
+    with col_conf:
+        st.progress(confidence / 100, text=f"Confidence: {confidence}/100")
+
+
 def render_trust_scores(trust_profile: TrustProfile) -> None:
     if not trust_profile.has_data():
         return
@@ -335,7 +359,7 @@ if use_langgraph:
 
         elif node_name == "verdict":
             st.header("Final Verdict")
-            st.markdown(node_output.get("final_verdict", ""))
+            render_verdict(node_output.get("final_verdict", ""))
 
     render_metrics(agents, judge, trust_profile=trust_profile)
     st.stop()
@@ -394,6 +418,6 @@ for agent, response in closing_results:
 st.header("Final Verdict")
 with st.spinner("Judge deliberating..."):
     verdict = judge.final_verdict(topic, orchestrator.state["history"], [a.name for a in agents])
-st.markdown(verdict)
+render_verdict(verdict)
 
 render_metrics(agents, judge, trust_profile=trust_profile)
