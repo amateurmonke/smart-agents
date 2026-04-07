@@ -5,12 +5,14 @@ from langgraph.checkpoint.memory import MemorySaver
 from debate_engine import DebateState, HistoryEntry
 from agents import DebateAgent
 from adjudicator import Adjudicator
+from ecl import TrustProfile
 
 
 def build_debate_graph(
     agents: list[DebateAgent],
     adjudicator: Adjudicator,
     max_rounds: int,
+    trust_profile: TrustProfile | None = None,
 ):
     """
     Build and compile a LangGraph StateGraph for the debate.
@@ -22,8 +24,12 @@ def build_debate_graph(
       - consensus reached OR current_round >= max_rounds  →  closing
       - otherwise                                         →  rebuttal (loop)
 
-    Nodes close over *agents*, *adjudicator*, and *max_rounds* so they
-    don't need to be serialised into the graph state.
+    Nodes close over *agents*, *adjudicator*, *trust_profile*, and *max_rounds*
+    so they don't need to be serialised into the graph state.
+
+    ECL integration: at the start of each rebuttal/closing node the previous
+    round is scored and *trust_profile* is updated before any agent responds,
+    so trust annotations reflect the most recent performance.
     """
 
     # ------------------------------------------------------------------
@@ -64,7 +70,14 @@ def build_debate_graph(
         }
 
     def rebuttal_node(state: DebateState) -> dict:
-        round_num = state["current_round"] + 1
+        # Score the previous round and update trust BEFORE agents respond.
+        prev_round = state["current_round"]
+        prev_entries = [e for e in state["history"] if e["round"] == prev_round]
+        if prev_entries and trust_profile is not None:
+            scores = adjudicator.score_round(state["topic"], prev_entries, prev_round)
+            trust_profile.update(scores)
+
+        round_num = prev_round + 1
         history = list(state["history"])
         stances = dict(state["agent_stances"])
 
@@ -81,7 +94,14 @@ def build_debate_graph(
         }
 
     def closing_node(state: DebateState) -> dict:
-        closing_round = state["current_round"] + 1
+        # Score the final rebuttal round and update trust before closings.
+        last_round = state["current_round"]
+        last_entries = [e for e in state["history"] if e["round"] == last_round]
+        if last_entries and trust_profile is not None:
+            scores = adjudicator.score_round(state["topic"], last_entries, last_round)
+            trust_profile.update(scores)
+
+        closing_round = last_round + 1
         history = list(state["history"])
         stances = dict(state["agent_stances"])
 

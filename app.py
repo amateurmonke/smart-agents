@@ -8,6 +8,7 @@ from debate_engine import DebateOrchestrator
 from adjudicator import Adjudicator
 from metrics import compute_metrics, disagreement_collapse_rate
 import tools as tools_module
+from ecl import TrustProfile
 
 # ---------------------------------------------------------------------------
 # Page config
@@ -75,13 +76,27 @@ def render_round_scores(round_scores: dict, round_label: str) -> None:
                     st.caption(data["note"])
 
 
-def render_metrics(agents, judge) -> None:
+def render_trust_scores(trust_profile: TrustProfile) -> None:
+    if not trust_profile.has_data():
+        return
+    st.subheader("ECL Trust Scores")
+    scores = trust_profile.trust_summary()
+    cols = st.columns(len(scores))
+    for col, (name, score) in zip(cols, sorted(scores.items(), key=lambda x: x[1], reverse=True)):
+        tier = "HIGH" if score >= 8.0 else ("MED" if score >= 5.5 else "LOW")
+        col.metric(label=name, value=f"{score:.1f}/10", delta=tier, delta_color="off")
+
+
+def render_metrics(agents, judge, trust_profile: TrustProfile | None = None) -> None:
     st.header("Debate Metrics")
     all_metrics = compute_metrics(agents)
     dcr = disagreement_collapse_rate(all_metrics)
     borda = judge.borda_count()
 
     col_left, col_right = st.columns(2)
+
+    if trust_profile is not None:
+        render_trust_scores(trust_profile)
 
     with col_left:
         st.subheader("Agent Metrics")
@@ -189,6 +204,14 @@ with st.sidebar:
         value=False,
         help="Run the debate as a compiled LangGraph StateGraph with MemorySaver checkpointing.",
     )
+    use_ecl = st.toggle(
+        "Enable ECL (Epistemic Context Learning)",
+        value=False,
+        help=(
+            "Agents track peer reliability across rounds. "
+            "High-trust peers' arguments are weighted more heavily when an agent is uncertain."
+        ),
+    )
 
     start = st.button(
         "Start Debate",
@@ -226,6 +249,8 @@ if uploaded_file is not None and use_rag:
         st.session_state.rag_file_id = uploaded_file.file_id
         st.sidebar.success(f"Loaded {n_chunks} chunks from {uploaded_file.name}")
 
+trust_profile = TrustProfile() if use_ecl else None
+
 agents = [
     DebateAgent(
         name=cfg["name"],
@@ -234,6 +259,7 @@ agents = [
         client=client,
         use_tools=use_tools,
         use_rag=use_rag,
+        trust_profile=trust_profile,
     )
     for cfg in agent_configs
 ]
@@ -247,6 +273,8 @@ participant_list = " | ".join(
 st.caption(f"Participants: {participant_list}")
 if use_langgraph:
     st.caption("Orchestration: LangGraph StateGraph")
+if use_ecl:
+    st.caption("ECL: enabled — agents will weight peer arguments by trust tier")
 
 # ---------------------------------------------------------------------------
 # Run via LangGraph
@@ -254,7 +282,7 @@ if use_langgraph:
 if use_langgraph:
     from debate_graph import build_debate_graph
 
-    graph = build_debate_graph(agents, judge, max_rounds)
+    graph = build_debate_graph(agents, judge, max_rounds, trust_profile=trust_profile)
     initial_state = {
         "topic": topic,
         "history": [],
@@ -309,13 +337,13 @@ if use_langgraph:
             st.header("Final Verdict")
             st.markdown(node_output.get("final_verdict", ""))
 
-    render_metrics(agents, judge)
+    render_metrics(agents, judge, trust_profile=trust_profile)
     st.stop()
 
 # ---------------------------------------------------------------------------
 # Run via original DebateOrchestrator (default path)
 # ---------------------------------------------------------------------------
-orchestrator = DebateOrchestrator(topic=topic, agents=agents, max_rounds=max_rounds)
+orchestrator = DebateOrchestrator(topic=topic, agents=agents, max_rounds=max_rounds, trust_profile=trust_profile)
 
 # Opening statements
 st.header("Opening Statements")
@@ -329,6 +357,7 @@ for agent, response in opening_results:
     )
 
 opening_scores = judge.score_round(topic, orchestrator.history_for_round(0), round_num=0)
+orchestrator.update_trust(opening_scores)
 
 # Rebuttal rounds
 for round_num in range(1, max_rounds + 1):
@@ -347,6 +376,7 @@ for round_num in range(1, max_rounds + 1):
         )
 
     round_scores = judge.score_round(topic, orchestrator.history_for_round(round_num), round_num=round_num)
+    orchestrator.update_trust(round_scores)
     render_round_scores(round_scores, f"Rebuttal Round {round_num}")
 
 # Closing statements
@@ -366,4 +396,4 @@ with st.spinner("Judge deliberating..."):
     verdict = judge.final_verdict(topic, orchestrator.state["history"], [a.name for a in agents])
 st.markdown(verdict)
 
-render_metrics(agents, judge)
+render_metrics(agents, judge, trust_profile=trust_profile)
