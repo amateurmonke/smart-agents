@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TypedDict
 from agents import DebateAgent
+from ecl import TrustProfile
 
 
 class HistoryEntry(TypedDict):
@@ -28,10 +29,12 @@ class DebateOrchestrator:
         topic: str,
         agents: list[DebateAgent],
         max_rounds: int = 3,
+        trust_profile: TrustProfile | None = None,
     ) -> None:
         self.topic = topic
         self.agents = agents
         self.max_rounds = max_rounds
+        self.trust_profile = trust_profile
         self.state: DebateState = {
             "topic": topic,
             "history": [],
@@ -40,6 +43,11 @@ class DebateOrchestrator:
             "consensus_met": False,
             "final_verdict": "",
         }
+
+    def update_trust(self, round_scores: dict) -> None:
+        """Update the shared TrustProfile from adjudicator round scores."""
+        if self.trust_profile is not None:
+            self.trust_profile.update(round_scores)
 
     # --- Phase runners ---
 

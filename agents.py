@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from openai import OpenAI
 from tools import get_tools, dispatch_tool
+from ecl import TrustProfile
 
 PERSONAS: dict[str, str] = {
     "Analytical": (
@@ -39,6 +40,7 @@ class DebateAgent:
     model: str = "gpt-4o-mini"
     use_tools: bool = True
     use_rag: bool = False
+    trust_profile: TrustProfile | None = None
 
     current_stance: str = field(init=False)
     position_history: list[str] = field(default_factory=list, init=False)
@@ -49,7 +51,7 @@ class DebateAgent:
 
     def _system_prompt(self) -> str:
         persona_desc = PERSONAS.get(self.persona, "")
-        return (
+        base = (
             f"You are {self.name}, a participant in a structured debate. "
             f"Your reasoning style is {self.persona}: {persona_desc} "
             f"Your assigned position on the debate topic is: {self.initial_stance}. "
@@ -57,6 +59,16 @@ class DebateAgent:
             "If you use web search, briefly cite your source inline. "
             "Do not use em dashes. Do not use filler phrases like 'Certainly' or 'Great point'."
         )
+        if self.trust_profile is not None and self.trust_profile.has_data():
+            ecl_note = (
+                " Each peer's argument in the conversation is labelled with a trust tier "
+                "(HIGH, MED, or LOW) derived from their track record this debate. "
+                "When you are uncertain about a factual claim, give more epistemic weight "
+                "to arguments from HIGH-trust peers. You may still challenge them if you have "
+                "strong evidence, but do not dismiss them without justification."
+            )
+            return base + ecl_note
+        return base
 
     def respond(self, topic: str, history: list[dict], round_type: str = "rebuttal") -> str:
         self.last_tool_calls = []
@@ -64,10 +76,15 @@ class DebateAgent:
         messages = [{"role": "system", "content": self._system_prompt()}]
 
         if history:
-            recent = history[-8:]
-            context_lines = "\n\n".join(
-                f"{h['agent']} ({h['round_type']}): {h['content']}" for h in recent
-            )
+            if self.trust_profile is not None and self.trust_profile.has_data():
+                context_lines = self.trust_profile.format_trust_context(
+                    history, for_agent=self.name
+                )
+            else:
+                recent = history[-8:]
+                context_lines = "\n\n".join(
+                    f"{h['agent']} ({h['round_type']}): {h['content']}" for h in recent
+                )
             user_msg = (
                 f"Debate topic: {topic}\n\n"
                 f"Conversation so far:\n{context_lines}\n\n"
