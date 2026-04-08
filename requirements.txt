@@ -4,3 +4,4 @@ duckduckgo-search>=6.0.0
 python-dotenv>=1.0.0
 langgraph>=0.2.0
 numpy>=1.26.0
+faiss-cpu>=1.8.0

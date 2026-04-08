@@ -93,7 +93,14 @@ def web_search(query: str, max_results: int = 3) -> str:
 def rag_search(query: str, k: int = 3) -> str:
     if _doc_store is None or _doc_store.is_empty:
         return "RAG corpus is empty. No documents have been loaded."
-    return _doc_store.format_results(query, k=k)
+    results = _doc_store.search(query, k=k)
+    if not results:
+        return "No relevant documents found in the local corpus."
+    parts = []
+    for r in results:
+        source = r["metadata"].get("filename", "uploaded document")
+        parts.append(f"[Source: {source} | Relevance {r['score']:.2f}]\n{r['chunk']}")
+    return "\n\n---\n\n".join(parts)
 
 
 def dispatch_tool(name: str, arguments: str) -> str:

@@ -1,0 +1,147 @@
+ACME CORPORATION — EMPLOYEE POLICY HANDBOOK
+Version 4.2 | Effective Date: January 1, 2025
+
+================================================================================
+SECTION 1: WORK HOURS AND ATTENDANCE
+================================================================================
+
+Standard working hours are 9:00 AM to 6:00 PM, Monday through Friday. Employees
+are expected to be at their workstations and available during core hours of
+10:00 AM to 4:00 PM. Flexible start times between 8:00 AM and 10:00 AM are
+permitted with manager approval.
+
+Employees must notify their direct manager at least 30 minutes before their
+scheduled start time if they will be absent or late. Unexcused absences exceeding
+three days in a rolling 90-day period will trigger a formal performance review.
+
+Remote work is permitted up to three days per week for employees who have
+completed their 6-month probationary period and maintained a satisfactory
+performance rating. Fully remote arrangements require VP-level approval.
+
+================================================================================
+SECTION 2: LEAVE POLICY
+================================================================================
+
+Annual Leave
+Employees accrue 1.5 days of paid annual leave per month, totalling 18 days per
+calendar year. Leave accrual begins from the first day of employment. Unused
+leave may be carried over up to a maximum of 10 days into the next calendar year.
+Any leave balance exceeding 10 days at year-end is forfeited.
+
+Sick Leave
+Employees are entitled to 12 days of paid sick leave per year. Sick leave does
+not carry over to the following year. A medical certificate is required for any
+sick leave exceeding two consecutive days.
+
+Parental Leave
+Primary caregivers are entitled to 16 weeks of fully paid parental leave.
+Secondary caregivers are entitled to 4 weeks of fully paid parental leave.
+Parental leave must be taken within 12 months of the child's birth or adoption.
+
+Bereavement Leave
+Employees may take up to 5 paid days for the death of an immediate family member
+(spouse, child, parent, sibling). Up to 3 paid days are granted for the death of
+an extended family member (grandparent, in-law, aunt, uncle).
+
+================================================================================
+SECTION 3: CODE OF CONDUCT
+================================================================================
+
+All employees are expected to treat colleagues, clients, and vendors with respect
+and professionalism at all times. Harassment, discrimination, or bullying of any
+kind — including on the basis of race, gender, age, religion, disability, or
+sexual orientation — is strictly prohibited and may result in immediate termination.
+
+Employees must not engage in any outside employment or business activity that
+conflicts with the interests of Acme Corporation without prior written approval
+from the HR department. This includes serving on the board of a competitor or
+owning more than 5% equity in a competing business.
+
+Confidential company information — including financial data, client lists,
+product roadmaps, and proprietary processes — must not be disclosed to any
+external party without explicit written authorization from the Legal department.
+This obligation persists for 24 months after the end of employment.
+
+================================================================================
+SECTION 4: EXPENSE REIMBURSEMENT
+================================================================================
+
+Business-related expenses are reimbursable when pre-approved by a manager and
+submitted within 30 days of being incurred. Submissions older than 30 days will
+not be processed.
+
+Meal allowances: Up to $40 per person for client lunches; up to $75 per person
+for client dinners. Team meals (internal only) are capped at $25 per person.
+Alcohol may be expensed only for client entertainment and must not exceed 20% of
+the total bill.
+
+Travel: Economy class is the standard for all domestic flights. Business class
+may be approved for international flights exceeding 8 hours. Hotel bookings must
+not exceed the city rate cap published quarterly by the Finance team. Employees
+are encouraged to book travel at least 14 days in advance to minimise costs.
+
+All expenses must be submitted via the Concur expense management portal with
+itemised receipts attached. Credit card statements alone are not accepted as
+proof of expenditure.
+
+================================================================================
+SECTION 5: IT AND DATA SECURITY
+================================================================================
+
+Employees must not install unauthorised software on company-issued devices.
+All software installations require a request through the IT helpdesk portal.
+Requests are typically processed within 2 business days.
+
+Passwords must be at least 14 characters long, include a mix of uppercase,
+lowercase, numbers, and symbols, and must be changed every 90 days. Reuse of
+the last 10 passwords is prohibited. Multi-factor authentication (MFA) is
+mandatory for all company systems.
+
+Company data must not be stored on personal devices or personal cloud accounts
+(e.g. personal Google Drive, Dropbox). Approved cloud storage is limited to
+the company's Microsoft 365 OneDrive environment.
+
+Employees who suspect a security incident — including lost/stolen devices,
+phishing attempts, or unauthorised access — must report it to the IT Security
+team at security@acmecorp.com within 1 hour of discovery.
+
+================================================================================
+SECTION 6: PERFORMANCE REVIEWS AND PROMOTIONS
+================================================================================
+
+Formal performance reviews are conducted twice per year: in June and December.
+Each review includes a self-assessment, peer feedback, and a manager evaluation
+scored on a 5-point scale across five competencies: Delivery, Collaboration,
+Communication, Innovation, and Leadership.
+
+Employees who score an average of 4.0 or above are eligible for a merit-based
+salary increase of up to 12%. Employees scoring below 2.5 are placed on a
+90-day Performance Improvement Plan (PIP). Failure to meet PIP targets may
+result in termination.
+
+Promotions are not tied to the biannual review cycle and may occur at any time.
+A promotion requires a recommendation from the direct manager, endorsement from
+the department head, and final approval from HR. Employees must have been in
+their current role for a minimum of 12 months to be eligible for promotion,
+unless an exception is granted by the CHRO.
+
+================================================================================
+SECTION 7: GRIEVANCE PROCEDURE
+================================================================================
+
+Employees who have a workplace grievance should first attempt to resolve the
+matter informally with the relevant party. If the matter is unresolved within
+5 business days, the employee may file a formal grievance by submitting the
+Grievance Form to HR.
+
+HR will acknowledge receipt of the formal grievance within 2 business days and
+will complete an investigation within 20 business days. Both parties will be
+notified of the outcome in writing. Appeals must be submitted within 10 business
+days of receiving the outcome.
+
+Employees who raise a grievance in good faith are protected from retaliation.
+Any retaliation is itself a disciplinary matter that may result in termination.
+
+================================================================================
+END OF DOCUMENT
+================================================================================

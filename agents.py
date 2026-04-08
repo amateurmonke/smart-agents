@@ -57,6 +57,8 @@ class DebateAgent:
             f"Your assigned position on the debate topic is: {self.initial_stance}. "
             "Be concise (3 to 5 sentences per turn). Engage directly with what others have said. "
             "If you use web search, briefly cite your source inline. "
+            "If you use rag_search, you MUST cite the document by name and quote or paraphrase "
+            "the specific passage you are drawing from — e.g. '(sample_policy.txt: \"...\")'. "
             "Do not use em dashes. Do not use filler phrases like 'Certainly' or 'Great point'."
         )
         if self.trust_profile is not None and self.trust_profile.has_data():
